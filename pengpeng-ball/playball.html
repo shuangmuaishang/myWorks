@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+	<title>碰碰球测试版</title>
+</head>
+<body class="ofa">
+<div style="text-align:center;">
+	<canvas id="cvs" width="800" height="600" style="background-color:aqua;margin:auto;">
+		your browser doesn't support the HTML5 element canvas.
+	</canvas>
+	<audio id="a1" src="music/fail.mp3">Your browser does not support the audio element.</audio>
+	<audio id="a2" src="music/a2.wav">Your browser does not support the audio element.</audio>
+	<audio id="a3" src="music/victory.wav">Your browser does not support the audio element.</audio>
+</div>
+
+<script>
+	var _width = 800,_height = 600,_padding = 25;
+	var canvas = document.getElementById("cvs");
+	var ctx = canvas.getContext("2d");
+	var _ballX = 375,_ballY = 275,_rad = 10;
+	var _moveX,_moveY,_speed = 5;
+	var _banX = 350;
+	var _direction = Math.round(Math.random() * 360);
+	var _boom = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+	var a=document.querySelector("#a2");
+
+	Init();
+	Ban(_banX);
+	//moveTo();
+	var siv = setInterval(function(){
+		moveTo();
+		move();
+		_ballX += _moveX;
+		_ballY += _moveY;
+	},10);
+
+	function Init(){
+		ctx.clearRect(0,0,_width,_height-_padding);
+		ctx.beginPath();
+		ctx.save();
+		ctx.fillStyle = "black";
+		ctx.fillRect(0,0,_width,_padding);
+		ctx.fillRect(0,0,_padding,_height-_padding);
+		ctx.fillRect(_width-_padding,0,_padding,_height-_padding);
+		//ctx.fillRect(0,_height-_padding,_width,_padding);
+		ctx.stroke();
+		ctx.restore();
+	}
+	function Boom(){
+		ctx.clearRect(_padding,_padding,_height-_padding,50);
+		ctx.beginPath();
+		ctx.save();
+		for(var i = 0 ; i < 25 ; i ++){
+			if(i % 6 == 0 && _boom[i] == 1){
+				ctx.fillStyle = "#FFBBFF";
+				ctx.fillRect(_padding + 150 * (i/6),_padding * (1 + i/6 * 0.5),150,_padding/2);
+			}else if((i+1)%6 == 0 && _boom[i] == 1){
+				ctx.fillStyle = "#C67171";
+				ctx.fillRect(_padding + 150 * (Math.floor((i+1)/6)-1),_padding * (1 + (i+1)/6 * 0.5),150,_padding/2);
+			}else if((i-1)%6 == 0 && _boom[i] == 1){
+				ctx.fillStyle = "#C67171";
+				ctx.fillRect(_padding + 150 * (Math.floor((i-1)/6)+1),_padding * (1 + (i-1)/6 * 0.5),150,_padding/2);
+			}else if((i+2)%6 == 0 && i > 4 && _boom[i] == 1){
+				ctx.fillStyle = "#C0FF3E";
+				ctx.fillRect(_padding + 150 * (Math.floor((i+2)/6)-2),_padding * (1 + (i+2)/6 * 0.5),150,_padding/2);
+			}else if((i-2)%6 == 0 && i < 19 && _boom[i] == 1){
+				ctx.fillStyle = "#C0FF3E";
+				ctx.fillRect(_padding + 150 * (Math.floor((i-2)/6)+2),_padding * (1 + (i-2)/6 * 0.5),150,_padding/2);
+			}else if((i+3)%6 == 0 && i > 9 && _boom[i] == 1){
+				ctx.fillStyle = "#BA55D3";
+				ctx.fillRect(_padding + 150 * (Math.floor((i+3)/6)-3),_padding * (1 + (i+3)/6 * 0.5),150,_padding/2);
+			}else if((i-3)%6 == 0 && i < 13 && _boom[i] == 1){
+				ctx.fillStyle = "#BA55D3";
+				ctx.fillRect(_padding + 150 * (Math.floor((i-3)/6)+3),_padding * (1 + (i-3)/6 * 0.5),150,_padding/2);
+			}else if((i+4)%6 == 0 && i > 15 && _boom[i] == 1){
+				ctx.fillStyle = "#A2CD5A";
+				ctx.fillRect(_padding + 150 * (Math.floor((i+4)/6)-4),_padding * (1 + (i+4)/6 * 0.5),150,_padding/2);
+			}else if((i-4)%6 == 0 && i < 7 && _boom[i] == 1){
+				ctx.fillStyle = "#A2CD5A";
+				ctx.fillRect(_padding + 150 * (Math.floor((i-4)/6)+4),_padding * (1 + (i-4)/6 * 0.5),150,_padding/2);
+			}
+		}
+		ctx.stroke();
+		ctx.restore();
+	}
+	function Ban(x){
+		ctx.clearRect(0,_height-_padding,_width,_padding);
+		ctx.save();
+		ctx.fillStyle = "red";
+
+		if(x > _width - 100){
+			ctx.fillRect(_width - 100,_height-_padding,100,_padding);
+			_banX = _width - 100;
+		}else {
+			ctx.fillRect(x,_height-_padding,100,_padding);
+			_banX = x;
+		}
+
+		ctx.stroke();
+		ctx.restore();
+	}
+	function move(){
+		Init();
+		Boom();
+		ctx.beginPath();
+		ctx.arc(_ballX,_ballY,10,0,2*Math.PI);
+		ctx.stroke();
+	}
+	function moveTo(){
+		var index = Math.floor((_ballX - _padding)/150);   //位于每行第几个
+		if(_ballY <= _padding + _rad){                     //球球碰到顶
+			_direction = 360 - _direction;
+			//$("#a2").play();
+		}else if(_ballY <= _padding * 1.5){                //碰到顶部最后一排
+			if(_boom[index] == 1){
+				_boom[index] = 0;                          //砖块消失
+				_direction = 360 - _direction;
+				a.play();
+			}
+			var success = 0;
+			for(var i = 0; i < 5; i++){
+				if(_boom[i] == 0) success++;               //若最后一排5个全部消失
+			}
+			if(success == 5){
+				clearInterval(siv);
+				setTimeout(function(){
+					ctx.font = "20px Verdana";
+					ctx.fillText("congratulation!你已成功完成该游戏~",_width/3,_height/2);
+				},100);
+			}
+		}else if(_ballY <= _padding * 2){                  //碰到顶部倒数第二排
+			if(_boom[5+index] == 1){
+				_boom[5+index] = 0;
+				_direction = 360 - _direction;
+				a.play();
+			}
+		}else if(_ballY <= _padding * 2.5){                //碰到顶部倒数第三排
+			if(_boom[10+index] == 1){
+				_boom[10+index] = 0;
+				_direction = 360 - _direction;
+				a.play();
+			}
+		}else if(_ballY <= _padding * 3){                  //碰到顶部倒数第四排
+			if(_boom[15+index] == 1){
+				_boom[15+index] = 0;
+				_direction = 360 - _direction;
+				a.play();
+			}
+		}else if(_ballY <= _padding * 3.5){                //碰到顶部倒数第五排
+			if(_boom[20+index] == 1){
+				_boom[20+index] = 0;
+				_direction = 360 - _direction;
+				a.play();
+			}
+		}else if((_ballX >= _width - _padding - _rad) || (_ballX <= _padding + _rad)){  //碰到旁边两壁
+			_direction = 180 - _direction;
+		}else if(_ballY >= _height - _padding - _rad){            //碰到板方向改变
+			if((_ballX > _banX) && (_ballX < _banX + 100)){
+				if(_ballX < _banX + 45) _direction = 180 + (_ballX - _banX) * 2;
+				else if(_ballX > _banX + 55) _direction = 270 + (_ballX - _banX - 55) * 2
+				else _direction = 270;
+			}else{                                                //碰到板以外游戏结束
+				clearInterval(siv);
+				setTimeout(function(){
+					ctx.font = "20px Verdana";
+					ctx.fillText("Game Over!请按F5重新开始游戏。",_width/3,_height/2);
+					document.querySelector("#a1").play();
+				},100);
+				//ctx.font = "20px Verdana";
+				//ctx.fillText("Game Over!",_width/2,_height/2);
+			}
+		}
+		_moveX = Math.cos(_direction*Math.PI/360*2) * _speed;
+		_moveY = Math.sin(_direction*Math.PI/360*2) * _speed;
+	}
+	document.querySelector("#cvs").addEventListener("mousemove",function(e){
+		//console.log(e.offsetX);
+		Ban(e.offsetX);
+	});
+	document.querySelector("#cvs").addEventListener("touchmove",function(e){
+		//console.log(e.offsetX);
+		Ban(e.offsetX);
+	});
+</script>
+</body>
+</html>
