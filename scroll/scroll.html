@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body style="height: 2000px">
+<p>请上下滚动以下两幅图片，体验其中的不同</p>
+<div id="test" style="width:400px;height: 300px;overflow: scroll;margin-top: 50px">
+    <img src="img/c2486f899e510fb39567499ad333c895d0430cc1.jpg">
+</div>
+<div style="width:400px;height: 300px;overflow: scroll;margin-top: 100px">
+    <img src="img/c2486f899e510fb39567499ad333c895d0430cc1.jpg">
+</div>
+<script>
+    parentNotScroll('test');
+
+    function parentNotScroll(id) {
+        var a = document.getElementById(id);
+        var eventType = "mousewheel";
+        if (navigator.userAgent.indexOf('Firefox') >= 1) {
+            eventType = 'DOMMouseScroll';     //判断是否为Firefox浏览器
+        }
+        a.addEventListener(eventType, function (e) {
+            var delta = e.wheelDelta ? e.wheelDelta : -(e.detail);
+            if ((delta > 0 && this.scrollTop <= delta) || (delta < 0 && this.scrollHeight - this.clientHeight - this.scrollTop <= -1 * delta)) {
+                this.scrollTop = delta > 0 ? 0 : this.scrollHeight;
+                stopDefault();
+            }
+        });
+        function stopDefault() {
+            var e = arguments.callee.caller.arguments[0] || window.event;
+            if (e.preventDefault) {//非IE
+                e.preventDefault();
+                //IE中阻止函数器默认动作的方式
+            } else {//IE
+                e.returnValue = false;
+            }
+            return false;
+        }
+    }
+</script>
+
+</body>
+</html>
